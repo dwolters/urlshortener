@@ -1,0 +1,35 @@
+{
+  "name": "urlshortener",
+  "version": "1.0.0",
+  "description": "Simple url shortening service",
+  "main": "app.js",
+  "private": true,
+  "dependencies": {
+    "basic-auth-connect": "^1.0.0",
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
+    "fs-promise": "^1.0.0",
+    "node-uuid": "^1.4.7",
+    "trim": "0.0.1"
+  },
+  "devDependencies": {
+    "eslint": "^3.10.2",
+    "eslint-config-google": "^0.7.1",
+    "frisby": "^0.8.5",
+    "jasmine": "^2.5.2",
+    "jasmine-node": "^1.14.5",
+    "nodemon": "^1.11.0"
+  },
+  "scripts": {
+    "test": "jasmine-node tests/",
+    "start": "node server.js",
+    "dev": "nodemon app.js",
+    "lint": "eslint *.js tests/*.js"
+  },
+  "keywords": [
+    "url",
+    "shortener"
+  ],
+  "author": "",
+  "license": "ISC"
+}
