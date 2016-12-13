@@ -91,14 +91,20 @@ app.delete('/:id', auth, (req, res) => {
         res.status(400).end('Invalid ID format');
         console.error('Request for invalid id:', id);
     } else {
-        fs.unlink(path.join(mappingPath, id))
+		var file = path.join(mappingPath, id);
+        fs.unlink(file)
             .then(() => {
                 delete mapping[id];
                 res.end('OK');
                 console.log('Delete short URL with id:', id);
             }, (err) => {
-                res.status(500).end('Internal Server Error');
-                console.error('Error during deletion:', err);
+				if(err.code === 'ENOENT') {
+                    res.end('OK');
+					console.log('Ignoring request: Short URL has already been deleted');
+				} else {
+                    res.status(500).end('Internal Server Error');
+				    console.error('Error during deletion:', err);
+				}
             });
     }
 });
