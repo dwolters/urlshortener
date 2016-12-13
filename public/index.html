@@ -1,10 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Test</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.css">
 </head>
-<body>
+<body id="content" ng-controller="ShortenerCtrl" ng-app="ShortenerApp" ng-cloak>
+<md-toolbar>
+    <h2 class="md-toolbar-tools">URL Shortener</h2>
+</md-toolbar>
+<md-content>
+    <div flex-xs flex-gt-xs="100" layout="column">
+        <md-card>
+            <form name="createForm" novalidate>
+                <md-card-title>
+                    <md-card-title-text>
+                        <span class="md-headline">Create Short URL</span>
+                    </md-card-title-text>
+                </md-card-title>
+                <md-card-content>
+                    <md-input-container class="md-block">
+                        <label>Long URL, e.g., http://example.com/a/very/long/url/might/need/shortening</label>
+                        <input ng-model="longUrl">
+                    </md-input-container>
+                </md-card-content>
+                <md-card-actions layout="row" layout-align="end center">
+                    <md-button ng-disabled="!longUrl || createForm.$invalid" ng-click="create()">Create</md-button>
+                </md-card-actions>
+            </form>
+        </md-card>
+        <md-card>
+            <form name="deleteForm" novalidate>
+                <md-card-title>
+                    <md-card-title-text>
+                        <span class="md-headline">Delete Short URL</span>
+                    </md-card-title-text>
+                </md-card-title>
+                <md-card-content>
+                    <md-input-container class="md-block">
+                        <label>Short URL, e.g., {{getBaseUrl()}}/df9edg4</label>
+                        <input ng-model="shortUrl" pattern="https?://.*/([a-z0-9]+)?$">
+                    </md-input-container>
+                </md-card-content>
+                <md-card-actions layout="row" layout-align="end center">
+                    <md-button ng-disabled="!shortUrl || deleteForm.$invalid" ng-click="delete()">Delete</md-button>
+                </md-card-actions>
+            </form>
+        </md-card>
+    </div>
+</md-content>
+
+<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-animate.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-aria.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-messages.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-sanitize.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.js"></script>
+
+<script type="text/javascript">
+    angular.module('ShortenerApp', ['ngMaterial', 'ngSanitize'])
+            .controller('ShortenerCtrl', ['$scope', '$http', '$mdDialog', function ($scope, $http, $mdDialog) {
+                $scope.getBaseUrl = function() {
+                    return window.location.protocol + '//' + window.location.host;
+                };
+                $scope.create = function() {
+                    $http.post('/create', {url: $scope.longUrl}).then(function (response) {
+                        var shortUrl = $scope.getBaseUrl() + response.headers('Location');
+                        $mdDialog.show(
+                                $mdDialog.alert()
+                                        .parent(angular.element(document.querySelector('#content')))
+                                        .clickOutsideToClose(true)
+                                        .title('Short URL')
+                                        .htmlContent('<a href="' + shortUrl + '">' + shortUrl + '</a>')
+                                        .ok('OK')
+                        );
+                    });
+                };
+                $scope.delete = function() {
+                    var id = $scope.shortUrl.match(/\/([a-z0-9]+)\/?$/);
+                    if (id && Array.isArray(id)) {
+                        id = id[1];
+                        console.log(id);
+                        $http.delete('/' + id).then(function () {
+                            $mdDialog.show(
+                                    $mdDialog.alert()
+                                            .parent(angular.element(document.querySelector('#content')))
+                                            .clickOutsideToClose(true)
+                                            .title('Deletion')
+                                            .textContent('Short URL has been successfully deleted')
+                                            .ok('OK')
+                            );
+                        });
+                    }
+                };
+            }]);
+</script>
 
 </body>
 </html>
