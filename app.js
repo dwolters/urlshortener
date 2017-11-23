@@ -98,7 +98,7 @@ app.delete('/:id', auth, (req, res) => {
                 res.end('OK');
                 console.log('Delete short URL with id:', id);
             }, (err) => {
-                if(err.code === 'ENOENT') {
+                if (err.code === 'ENOENT') {
                     res.end('OK');
                     console.log('Ignoring request: Short URL has already been deleted');
                 } else {
@@ -122,12 +122,18 @@ app.all('*', (req, res) => {
     console.warn('Request for unknown route or unsupported method:', req.url);
 });
 
-let files = fs.readdirSync(mappingPath);
-files.forEach((id) => {
-    let file = path.join(mappingPath, id);
-    if (validId(id) && fs.statSync(file).isFile()) {
-        mapping[id] = fs.readFileSync(file);
-    }
-});
+fs.exists(mappingPath)
+    .then(() => { // Read existing mappings
+        let files = fs.readdirSync(mappingPath);
+        files.forEach((id) => {
+            let file = path.join(mappingPath, id);
+            if (validId(id) && fs.statSync(file).isFile()) {
+                mapping[id] = fs.readFileSync(file);
+            }
+        });
+    }).catch(() => { // Create mapping directory
+        fs.mkdirSync(mappingPath);
+        console.log('Created data directory.');
+    });
 
 module.exports = app;
