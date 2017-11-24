@@ -1,0 +1,21 @@
+language: node_js
+
+node_js: "7"
+
+branches:
+  only:
+    - master
+
+env:
+  - AUTH=false
+  - AUTH=true USER=test PASSWORD=secret
+
+before_script: npm install
+
+script:
+  - npm run lint
+  - npm start && npm test
+
+notifications:
+  email:
+    - dennis.wolters@upb.de
